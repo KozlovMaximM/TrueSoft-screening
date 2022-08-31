@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from "vue";
-import LiftsManager from '../services/LiftsManager'
+import { ref, watch } from "vue";
+import LiftsManager from "../services/LiftsManager";
 import LiftShaft from "./LiftShaft.vue";
 
 const props = defineProps({
@@ -13,6 +13,7 @@ const resolve_button_indicator = (activated) => (activated ? "🔴" : "⚪");
 
 // setting up refs
 const lifts_manager = ref(new LiftsManager(props.shaftsNumber, props.stories));
+console.log(lifts_manager.value)
 </script>
 
 <template>

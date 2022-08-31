@@ -20,7 +20,7 @@ const floors_data = ref(
     className: i % 2 == 0 ? "floor odd" : "floor",
   }))
 );
-const current_floor = ref(0);
+const current_floor = ref(props.currentFloor);
 const lift_data = ref({
   style: {
     height: `${100.0 / props.stories}%`,
