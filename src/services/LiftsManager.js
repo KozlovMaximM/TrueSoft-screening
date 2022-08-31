@@ -1,23 +1,17 @@
 class LiftsManager {
-  constructor(shafts, stories, floors = undefined) {
-    
-    if (floors === undefined) 
-      floors = Array.from({ length: shafts }, () => 0)
-
+  constructor(shafts, stories, floors = undefined, queue = undefined) {
     this.lifts = Array.from({ length: shafts }, (_, i) => ({
       index: i,
       id: `shaft_${i}`,
       available: true,
-      current_floor: floors[i],
+      current_floor: floors ? floors[i] : 0,
     }))
-
     this.floors = Array.from({ length: stories }, (_, i) => ({
       index: i,
       id: `floor_${i}`,
       indicator: false
     }))
-
-    this.queue = []
+    this.queue = queue ? queue: []
   }
 
   dispatchLift(lift_id, floor_id) {
@@ -28,21 +22,20 @@ class LiftsManager {
       available: false
     } : lift)
   }
-  
+
   liftArrived(lift_id) {
     // changing lift status
     this.lifts = this.lifts.map(lift => lift.id === lift_id ? { ...lift, available: true } : lift)
 
     // changing floor indicator
     const floor_index = this.lifts.find(lift => lift.id === lift_id).current_floor
-    this.floors = this.floors.map(floor => floor.index === floor_index ? {...floor, indicator: false} : floor)
+    this.floors = this.floors.map(floor => floor.index === floor_index ? { ...floor, indicator: false } : floor)
 
     // checking if there are unfulfilled request 
     if (this.queue.length !== 0) {
       this.dispatchLift(lift_id, this.queue[0])
       this.queue.shift()
     }
-    console.log('lift arrived ok', this)
   }
 
   requestLift(floor_id) {
@@ -62,13 +55,17 @@ class LiftsManager {
 
     // all checks passed, this is a valid request - adding to queue and changing floor indicator
     this.queue = this.queue.concat(floor_id)
-    this.floors = this.floors.map(floor => floor.id === floor_id ? {...floor, indicator: true} : floor)
-
+    this.floors = this.floors.map(floor => floor.id === floor_id ? { ...floor, indicator: true } : floor)
 
     // checking if its possible to dispatch a lift 
-    const available_lift = this.lifts.find(lift => lift.available)
-    if (available_lift) {
-      this.dispatchLift(available_lift.id, this.queue[0])
+    const available_lifts = this.lifts.filter(lift => lift.available)
+    if (available_lifts.length) {
+      // finding closest lifts
+      const first_to_request_index = this.floors.find(floor => floor.id === this.queue[0]).index
+      const distance_to_floor = (lift) => Math.abs(lift.current_floor - first_to_request_index) 
+      const closest_lifts = available_lifts.sort((a, b) => distance_to_floor(a) - distance_to_floor(b))
+
+      this.dispatchLift(closest_lifts[0].id, this.queue[0])
       this.queue.shift()
     }
   }
