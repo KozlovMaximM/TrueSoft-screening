@@ -2,9 +2,13 @@
 import { watch, ref } from "vue";
 
 const props = defineProps({
-  stories: Number,
   shaftId: String,
+  stories: Number,
+  currentFloor: Number,
 });
+
+const emit = defineEmits(["available"]);
+emit("available", props.shaftId);
 
 // helper functions
 const new_random_floor = () => {
@@ -35,16 +39,21 @@ const lift_data = ref({
 
 // event listeners
 watch(current_floor, (new_floor, old_floor) => {
+
   lift_data.value = {
     ...lift_data.value,
     style: {
       ...lift_data.value.style,
-      transition: `transform ${Math.abs(old_floor - new_floor) / 5}s`,
+      transition: `transform ${Math.abs(old_floor - new_floor)}s`,
       transitionTimingFunction: "linear",
       transform: `translate(0, ${new_floor * 100}%)`,
       backgroundColor: "red",
     },
   };
+});
+
+watch(props, (new_props) => {
+  current_floor.value = new_props.currentFloor
 });
 
 addEventListener("transitionend", (event) => {
@@ -59,7 +68,6 @@ addEventListener("transitionend", (event) => {
           backgroundColor: "orange",
         },
       };
-      console.log(`lift ${event.target.id} has reached the floor, waiting`);
 
       // waiting a bit and switch
       setTimeout(() => {
@@ -71,7 +79,8 @@ addEventListener("transitionend", (event) => {
           },
         };
         console.log(`lift ${event.target.id} is available`);
-      }, 500``);
+        emit("available", props.shaftId);
+      }, 3000);
     }
   }
 });

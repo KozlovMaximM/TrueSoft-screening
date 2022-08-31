@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import LiftsManager from '../services/LiftsManager'
 import LiftShaft from "./LiftShaft.vue";
 
 const props = defineProps({
@@ -10,38 +11,32 @@ const props = defineProps({
 // helper functions
 const resolve_button_indicator = (activated) => (activated ? "🔴" : "⚪");
 
-const shafts_data = ref(
-  Array.from({ length: props.shaftsNumber }, (_, i) => ({
-    id: `shaft_${i}`,
-  }))
-);
-
-const buttons_data = ref(
-  Array.from({ length: props.stories }, (_, i) => ({
-    id: i,
-    inQueue: false,
-  }))
-);
+// setting up refs
+const lifts_manager = ref(new LiftsManager(props.shaftsNumber, props.stories));
 </script>
 
 <template>
   <LiftShaft
-    v-for="shaft_data in shafts_data"
-    :shaftId="shaft_data.id"
-    :key="shaft_data.id"
+    v-for="lift_data in lifts_manager.lifts"
     :stories="stories"
+    :shaftId="lift_data.id"
+    :key="lift_data.id"
+    :currentFloor="lift_data.current_floor"
+    @available="lifts_manager.liftArrived(lift_data.id)"
   />
   <div class="wall">
     <button
       class="lift-button"
-      v-for="button_data in buttons_data"
-      :key="button_data.id"
+      v-for="floor_data in lifts_manager.floors"
+      :key="floor_data.id"
+      @click="() => lifts_manager.requestLift(floor_data.id)"
     >
-      <p>{{ props.stories - button_data.id }}</p>
-      {{ resolve_button_indicator(button_data.inQueue) }}
+      <p>{{ props.stories - floor_data.index }}</p>
+      {{ resolve_button_indicator(floor_data.indicator) }}
     </button>
   </div>
 </template>
+
 
 <style>
 .wall {
