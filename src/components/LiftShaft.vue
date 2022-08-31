@@ -10,14 +10,10 @@ const props = defineProps({
 const emit = defineEmits(["available"]);
 emit("available", props.shaftId);
 
-// helper functions
-const new_random_floor = () => {
-  const new_value = Math.floor(Math.random() * props.stories);
-  if (new_value === current_floor.value) new_random_floor();
-  else current_floor.value = new_value;
-};
 
+// helper functions
 const generate_lift_id = (shaft_id) => `lift-${shaft_id}`;
+
 
 // setting up refs
 const floors_data = ref(
@@ -36,6 +32,7 @@ const lift_data = ref({
     transform: `translate(0, ${current_floor.value * 100}%)`,
   },
 });
+
 
 // event listeners
 watch(current_floor, (new_floor, old_floor) => {
@@ -69,7 +66,7 @@ addEventListener("transitionend", (event) => {
         },
       };
 
-      // waiting a bit and switch
+      // waiting a bit and emmiting "available" event
       setTimeout(() => {
         lift_data.value = {
           ...lift_data.value,
@@ -91,14 +88,11 @@ addEventListener("transitionend", (event) => {
     <div
       v-for="floor_data in floors_data"
       :key="floor_data.number"
-      :class="floor_data.className"
-    >
-      <!-- <p>{{ floor_data.number }}</p> -->
+      :class="floor_data.className">
     </div>
     <div
-      :id="generate_lift_id(shaftId)"
-      @click="new_random_floor"
       class="lift"
+      :id="generate_lift_id(shaftId)"
       :style="lift_data.style"
     ></div>
   </div>
