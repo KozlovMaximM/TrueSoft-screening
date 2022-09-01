@@ -7,8 +7,6 @@ class LiftsManager {
     const saved_lift_floors = saved_state ? saved_state.floors : undefined
     const saved_queue = saved_state ? saved_state.queue : undefined
 
-    console.log(saved_queue)
-
     this.lifts = Array.from({ length: shafts }, (_, i) => ({
       index: i,
       id: `shaft_${i}`,

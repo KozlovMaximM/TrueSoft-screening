@@ -13,7 +13,6 @@ const resolve_button_indicator = (activated) => (activated ? "🔴" : "⚪");
 
 // setting up refs
 const lifts_manager = ref(new LiftsManager(props.shaftsNumber, props.stories));
-console.log(lifts_manager.value)
 </script>
 
 <template>
